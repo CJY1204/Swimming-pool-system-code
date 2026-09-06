@@ -14,3 +14,5 @@ sudo chmod -R 755 /var/www/html/
 rm -rf code.zip Swimming-pool-system-code-main
 
 echo "Deploy Complete！"
+
+echo "Testing..."
