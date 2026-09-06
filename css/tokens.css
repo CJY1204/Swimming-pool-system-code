@@ -1,0 +1,134 @@
+/* =====================================================================
+   SPLASHPOINT — DESIGN TOKENS
+   Palette: deep-water blues + a bright "tide" teal signature accent,
+   a warm coral used only for the leisure pool + small highlights.
+   Type: Unbounded (display / signage), Manrope (body),
+         Space Mono (timestamps, codes — reads like a departure board).
+===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --c-abyss: #061826;
+  --c-deep: #0b3d5c;
+  --c-current: #10688a;
+  --c-tide: #23d3bd;
+  --c-tide-dark: #0fae9b;
+  --c-coral: #ff8a65;
+  --c-sand: #ffc069;
+  --c-foam: #f2f9f8;
+  --c-panel: #ffffff;
+  --c-ink: #0a2233;
+  --c-mist: #5c7c8a;
+  --c-line: rgba(10, 34, 51, 0.08);
+
+  --font-display: 'Unbounded', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 10px;
+
+  --shadow-soft: 0 10px 30px rgba(6, 24, 38, 0.07);
+  --shadow-strong: 0 24px 60px rgba(6, 24, 38, 0.18);
+
+  --container: 1180px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--c-foam);
+  color: var(--c-ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--c-abyss);
+  line-height: 1.15;
+  margin: 0;
+}
+
+p { margin: 0; }
+
+a { color: inherit; }
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-tide-dark);
+  font-weight: 700;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 14px 26px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px) scale(0.99); }
+.btn:focus-visible { outline: 3px solid var(--c-sand); outline-offset: 3px; }
+
+.btn-primary {
+  background: var(--c-tide);
+  color: var(--c-abyss);
+  box-shadow: 0 8px 24px rgba(35, 211, 189, 0.35);
+}
+.btn-primary:hover { background: var(--c-tide-dark); box-shadow: 0 10px 28px rgba(35, 211, 189, 0.45); }
+
+.btn-dark {
+  background: var(--c-abyss);
+  color: #fff;
+}
+.btn-dark:hover { background: #0c2c40; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--c-foam);
+  border: 1.5px solid rgba(242, 249, 248, 0.35);
+}
+.btn-ghost:hover { border-color: rgba(242, 249, 248, 0.8); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--c-deep);
+  border: 1.5px solid var(--c-line);
+}
+.btn-outline:hover { border-color: var(--c-deep); }
+
+.btn-block { width: 100%; }
+.btn-sm { padding: 9px 16px; font-size: 0.82rem; border-radius: 8px; }
+.btn-danger { background: #fdeceb; color: #c8442c; }
+.btn-danger:hover { background: #fadbd8; }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
