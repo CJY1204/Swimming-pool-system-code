@@ -15,4 +15,3 @@ rm -rf code.zip Swimming-pool-system-code-main
 
 echo "Deploy Complete！"
 
-echo "Testing..."
