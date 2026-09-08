@@ -75,7 +75,7 @@ require_once __DIR__ . '/includes/shell_top.php';
         <a href="?date=<?php echo urlencode($dateFilter); ?>&status=confirmed" class="chip <?php echo $statusFilter === 'confirmed' ? 'active' : ''; ?>">Confirmed</a>
         <a href="?date=<?php echo urlencode($dateFilter); ?>&status=cancelled" class="chip <?php echo $statusFilter === 'cancelled' ? 'active' : ''; ?>">Cancelled</a>
       </div>
-      <a href="bookings.php" class="btn btn-outline btn-sm">All dates</a>
+      <a href="?date=&status=<?php echo urlencode($statusFilter); ?>" class="btn btn-outline btn-sm">All dates</a>
     </form>
   </div>
   <table>
