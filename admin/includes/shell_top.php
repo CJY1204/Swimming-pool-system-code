@@ -11,7 +11,7 @@
 <body>
 <div class="admin-shell">
   <aside class="admin-sidebar">
-    <a href="<?php echo BASE_URL; ?>/index.php" class="brand"><span class="brand-mark">🌊</span> SplashPoint</a>
+    <div class="brand"><span class="brand-mark">🌊</span> SplashPoint</div>
     <nav class="side-nav">
       <button onclick="location.href='dashboard.php'" class="<?php echo ($activeNav ?? '') === 'dashboard' ? 'active' : ''; ?>"><span class="ic">📊</span> Dashboard</button>
       <button onclick="location.href='pools.php'" class="<?php echo ($activeNav ?? '') === 'pools' ? 'active' : ''; ?>"><span class="ic">🏊</span> Pools</button>

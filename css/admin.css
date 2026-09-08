@@ -59,6 +59,10 @@
   padding: 26px 20px;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 .admin-sidebar .brand { margin-bottom: 40px; padding: 0 6px; }
 .side-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
