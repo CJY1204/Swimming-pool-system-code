@@ -120,15 +120,15 @@ require_once __DIR__ . '/../includes/header.php';
       <tr><th>Reference</th><th>Pool</th><th>Session</th><th>Qty</th><th>Status</th><th></th></tr>
     </thead>
     <tbody>
-      <?php foreach ($bookings as $b): ?>
+      <?php foreach ($bookings as $b): $displayStatus = getBookingDisplayStatus($b['booking_status'], $b['session_date'], $b['end_time']); ?>
         <tr>
           <td class="ref" style="font-family:var(--font-mono); font-weight:700;"><?php echo htmlspecialchars($b['booking_reference']); ?></td>
           <td><?php echo htmlspecialchars($b['pool_name']); ?></td>
           <td><?php echo formatDateLabel($b['session_date']); ?> · <?php echo formatTimeLabel($b['start_time']); ?>–<?php echo formatTimeLabel($b['end_time']); ?></td>
           <td><?php echo (int) $b['quantity']; ?></td>
-          <td><span class="badge badge-<?php echo $b['booking_status']; ?>"><?php echo ucfirst($b['booking_status']); ?></span></td>
+          <td><span class="badge badge-<?php echo $displayStatus; ?>"><?php echo ucfirst($displayStatus); ?></span></td>
           <td>
-            <?php if ($b['booking_status'] === 'confirmed'): ?>
+            <?php if ($displayStatus === 'confirmed'): ?>
               <form method="POST" onsubmit="return confirm('Cancel this booking?');" style="margin:0;">
                 <input type="hidden" name="cancel_booking_id" value="<?php echo (int) $b['id']; ?>">
                 <button type="submit" class="btn btn-danger btn-sm">Cancel</button>

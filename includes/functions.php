@@ -50,6 +50,24 @@ function requireAdminLogin(): void
     }
 }
 
+/**
+ * A booking is 'confirmed' only while it's still upcoming. Once the
+ * session's end time has passed, display it as 'finished' instead —
+ * this is computed on the fly, not stored, so it's always accurate
+ * without needing a scheduled job to update old rows.
+ */
+function getBookingDisplayStatus(string $bookingStatus, string $sessionDate, string $endTime): string
+{
+    if ($bookingStatus === 'cancelled') {
+        return 'cancelled';
+    }
+    $sessionEnd = strtotime($sessionDate . ' ' . $endTime);
+    if ($sessionEnd !== false && $sessionEnd < time()) {
+        return 'finished';
+    }
+    return 'confirmed';
+}
+
 /** Simple gauge percentage + left-count helper for display. */
 function occupancy(int $capacity, int $booked): array
 {

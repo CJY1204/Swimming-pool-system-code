@@ -547,6 +547,7 @@ tbody tr:last-child td { border-bottom: none; }
 .badge-confirmed, .badge-active { background: rgba(35, 211, 189, 0.14); color: var(--c-tide-dark); }
 .badge-cancelled { background: #fdeceb; color: #c8442c; }
 .badge-closed { background: #f1f1f1; color: #777; }
+.badge-finished { background: #eef1f4; color: #5c7c8a; }
 
 .btn-secondary { background: transparent; color: var(--c-deep); border: 1.5px solid var(--c-line); }
 .btn-secondary:hover { border-color: var(--c-deep); }

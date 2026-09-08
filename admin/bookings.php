@@ -83,16 +83,16 @@ require_once __DIR__ . '/includes/shell_top.php';
     <tbody>
       <?php if (empty($bookings)): ?>
         <tr><td colspan="7" style="text-align:center; color:var(--c-mist); padding:34px;">No bookings match this filter.</td></tr>
-      <?php else: foreach ($bookings as $b): ?>
+      <?php else: foreach ($bookings as $b): $displayStatus = getBookingDisplayStatus($b['booking_status'], $b['session_date'], $b['end_time']); ?>
         <tr>
           <td class="ref"><?php echo htmlspecialchars($b['booking_reference']); ?></td>
           <td><?php echo htmlspecialchars($b['full_name']); ?><br><small style="color:var(--c-mist);"><?php echo htmlspecialchars($b['email']); ?> · <?php echo htmlspecialchars($b['phone']); ?></small></td>
           <td><?php echo htmlspecialchars($b['pool_name']); ?></td>
           <td class="mono"><?php echo formatDateLabel($b['session_date']); ?><br><?php echo formatTimeLabel($b['start_time']); ?>–<?php echo formatTimeLabel($b['end_time']); ?></td>
           <td><?php echo (int) $b['quantity']; ?></td>
-          <td><span class="badge badge-<?php echo $b['booking_status']; ?>"><?php echo ucfirst($b['booking_status']); ?></span></td>
+          <td><span class="badge badge-<?php echo $displayStatus; ?>"><?php echo ucfirst($displayStatus); ?></span></td>
           <td>
-            <?php if ($b['booking_status'] === 'confirmed'): ?>
+            <?php if ($displayStatus === 'confirmed'): ?>
               <form method="POST" onsubmit="return confirm('Cancel this booking?');" style="margin:0;">
                 <input type="hidden" name="cancel_booking_id" value="<?php echo $b['id']; ?>">
                 <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
