@@ -34,26 +34,12 @@ $quantity = 1;
 $errors = [];
 $occ = occupancy((int) $session['capacity'], (int) $session['booked']);
 
-// A member can only hold ONE active (confirmed) booking per pool at a time.
-// Different pools are fine — up to 3 concurrent bookings, one per pool —
-// but the same pool can't be double-booked until the existing one is cancelled.
-$existingStmt = $pdo->prepare("
-    SELECT b.booking_reference, s.session_date, s.start_time, s.end_time
-    FROM bookings b
-    JOIN sessions s ON s.id = b.session_id
-    WHERE b.member_id = ? AND s.pool_id = ? AND b.booking_status = 'confirmed'
-      AND (s.session_date > CURDATE() OR (s.session_date = CURDATE() AND s.end_time > CURTIME()))
-    LIMIT 1
-");
-$existingStmt->execute([$memberId, $session['pool_id']]);
-$existingBooking = $existingStmt->fetch();
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($session['status'] !== 'active') {
         $errors[] = 'This session is no longer open for booking.';
     }
 
-    if (empty($errors) && !$existingBooking) {
+    if (empty($errors)) {
         try {
             $pdo->beginTransaction();
 
@@ -70,17 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('This session just filled up. Please choose another slot.');
             }
 
-            // Re-check the one-booking-per-pool rule inside the transaction too,
-            // in case of a double-submit / race condition.
+            // Re-check inside the transaction too, in case of a double-submit /
+            // race condition — a member can't book the exact same session twice.
             $recheck = $pdo->prepare("
-                SELECT COUNT(*) AS c FROM bookings b
-                JOIN sessions s ON s.id = b.session_id
-                WHERE b.member_id = ? AND s.pool_id = ? AND b.booking_status = 'confirmed'
-                  AND (s.session_date > CURDATE() OR (s.session_date = CURDATE() AND s.end_time > CURTIME()))
+                SELECT COUNT(*) AS c FROM bookings
+                WHERE member_id = ? AND session_id = ? AND booking_status = 'confirmed'
             ");
-            $recheck->execute([$memberId, $session['pool_id']]);
+            $recheck->execute([$memberId, $sessionId]);
             if ($recheck->fetch()['c'] > 0) {
-                throw new Exception('You already have an active booking for this pool.');
+                throw new Exception('You already have an active booking for this session.');
             }
 
             $reference = generateBookingReference();
@@ -138,19 +122,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
   <?php endif; ?>
 
-  <?php if ($existingBooking): ?>
-    <div class="alert alert-error">
-      You already have an active booking for <strong><?php echo htmlspecialchars($session['pool_name']); ?></strong>
-      (Ref: <?php echo htmlspecialchars($existingBooking['booking_reference']); ?>,
-      <?php echo formatDateLabel($existingBooking['session_date']); ?> ·
-      <?php echo formatTimeLabel($existingBooking['start_time']); ?>–<?php echo formatTimeLabel($existingBooking['end_time']); ?>).
-      One active booking per pool at a time — cancel it in your profile first to book a different slot here.
-    </div>
-    <div style="display:flex; gap:10px;">
-      <a class="btn btn-outline" href="<?php echo BASE_URL; ?>/member/profile.php">Go to My Bookings</a>
-      <a class="btn btn-secondary" href="<?php echo BASE_URL; ?>/index.php">Back to Sessions</a>
-    </div>
-  <?php elseif ($occ['left'] <= 0): ?>
+  <?php if ($occ['left'] <= 0): ?>
     <div class="alert alert-error">This session is fully booked. Please choose another slot.</div>
     <a class="btn btn-secondary" href="<?php echo BASE_URL; ?>/index.php">Back to Sessions</a>
   <?php else: ?>
