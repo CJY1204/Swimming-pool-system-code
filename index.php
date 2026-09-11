@@ -26,7 +26,7 @@ require_once __DIR__ . '/includes/header.php';
   <div class="container hero-inner">
     <div>
       <div class="eyebrow hero-eyebrow">CAMPUS AQUATIC CENTER</div>
-      <h1>Two pools.<br>One <em>effortless</em> booking.</h1>
+      <h1>Three pools.<br>One <em>effortless</em> booking.</h1>
       <p class="lede">Reserve your lane in the Olympic pool, or unwind in one of our two smaller pools — pick a time, grab your tickets, and you're confirmed in under a minute.</p>
       <div class="hero-ctas">
         <a href="#pools" class="btn btn-primary">Check availability</a>
