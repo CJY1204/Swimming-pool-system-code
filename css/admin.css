@@ -189,7 +189,22 @@ td.mono { font-family: var(--font-mono); }
   cursor: pointer;
   background: #fbfefe;
   transition: border-color 0.15s, background 0.15s;
+  position: relative;
 }
+.btn-cancel-photo {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #c8442c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  z-index: 1;
+}
+.btn-cancel-photo:hover { background: #a83620; }
 .upload-dropzone:hover, .upload-dropzone.dragover {
   border-color: var(--c-tide);
   background: rgba(35, 211, 189, 0.05);

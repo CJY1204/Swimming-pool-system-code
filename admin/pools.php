@@ -128,9 +128,11 @@ require_once __DIR__ . '/includes/shell_top.php';
         <input type="file" id="photoFileInput" name="photo_file" accept="image/jpeg,image/png,image/webp" style="display:none;">
         <div id="uploadDropzoneContent">
           <?php if (!empty($editPool['photo'])): ?>
+            <button type="button" class="btn-cancel-photo" id="cancelPhotoBtn" style="display:none;">Cancel</button>
             <img src="<?php echo BASE_URL; ?>/images/<?php echo htmlspecialchars($editPool['photo']); ?>" alt="Current photo" class="upload-preview-img" onerror="this.remove()">
             <p class="upload-hint-text">Current photo — click or drag to replace</p>
           <?php else: ?>
+            <button type="button" class="btn-cancel-photo" id="cancelPhotoBtn" style="display:none;">Cancel</button>
             <div class="upload-icon">📷</div>
             <p class="upload-hint-text">Click to upload or drag &amp; drop<br>JPG, PNG, or WEBP — max 5MB</p>
           <?php endif; ?>
@@ -206,6 +208,8 @@ require_once __DIR__ . '/includes/shell_top.php';
   const content = document.getElementById('uploadDropzoneContent');
   if (!dropzone) return;
 
+  const originalContent = content.innerHTML;
+
   dropzone.addEventListener('click', () => fileInput.click());
 
   ['dragover', 'dragleave', 'drop'].forEach(evt => {
@@ -224,10 +228,19 @@ require_once __DIR__ . '/includes/shell_top.php';
     if (fileInput.files.length) showPreview(fileInput.files[0]);
   });
 
+  content.addEventListener('click', e => {
+    if (e.target.id === 'cancelPhotoBtn' || e.target.closest('#cancelPhotoBtn')) {
+      e.stopPropagation();
+      fileInput.value = '';
+      content.innerHTML = originalContent;
+    }
+  });
+
   function showPreview(file) {
     const reader = new FileReader();
     reader.onload = e => {
       content.innerHTML =
+        '<button type="button" class="btn-cancel-photo" id="cancelPhotoBtn">Cancel</button>' +
         '<img src="' + e.target.result + '" class="upload-preview-img">' +
         '<p class="upload-hint-text">' + file.name + ' — click or drag to change</p>';
     };
