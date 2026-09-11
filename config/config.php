@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Kuala_Lumpur');
+
 /**
  * If you copy this project into a subfolder of your WAMPP htdocs, e.g.
  *   C:/wamp64/www/pool-booking-php

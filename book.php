@@ -42,6 +42,7 @@ $existingStmt = $pdo->prepare("
     FROM bookings b
     JOIN sessions s ON s.id = b.session_id
     WHERE b.member_id = ? AND s.pool_id = ? AND b.booking_status = 'confirmed'
+      AND (s.session_date > CURDATE() OR (s.session_date = CURDATE() AND s.end_time > CURTIME()))
     LIMIT 1
 ");
 $existingStmt->execute([$memberId, $session['pool_id']]);
@@ -75,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SELECT COUNT(*) AS c FROM bookings b
                 JOIN sessions s ON s.id = b.session_id
                 WHERE b.member_id = ? AND s.pool_id = ? AND b.booking_status = 'confirmed'
+                  AND (s.session_date > CURDATE() OR (s.session_date = CURDATE() AND s.end_time > CURTIME()))
             ");
             $recheck->execute([$memberId, $session['pool_id']]);
             if ($recheck->fetch()['c'] > 0) {
