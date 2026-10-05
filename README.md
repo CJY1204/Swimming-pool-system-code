@@ -1,106 +1,79 @@
-# SplashPoint — PHP + MySQL Swimming Pool Booking System
+# SplashPoint — Cloud-Based Swimming Pool Booking System
 
-Full rebuild of the front-end prototype into a real PHP + PDO + MySQL
-application: member accounts, admin dashboard with CRUD, and sessions
-that automatically refresh to full capacity every day.
+A scalable, secure, and cost-optimized booking platform for TAR UMT's Campus Aquatic Center, deployed as a proof-of-concept on AWS — built as a team project for the *Cloud Computing for Business* course.
 
-## How the "daily auto-refresh" works
+> **Note:** This project was deployed using an **AWS Academy Learner Lab** sandbox environment, which automatically reclaims all resources once the lab session ends. As a result, the live deployment URL is no longer active. Architecture diagrams, configuration screenshots, and load-test results are documented below and in the full project report.
 
-Instead of storing one `capacity` number that has to be manually reset,
-the system separates two concepts:
+## Overview
 
-- **`pool_schedules`** — the *recurring* daily time slots for a pool
-  (e.g. "Deep Blue is open 07:00–12:00 and 14:00–19:00 every day").
-  Managed by admins under **Schedules**.
-- **`sessions`** — one row per pool + specific date + time slot. This is
-  what people actually book against.
+**Problem:** Manual booking methods for campus pools caused long queues, scheduling conflicts, and system overload during peak periods.
 
-`includes/session_generator.php` runs at the top of `index.php` and
-`admin/dashboard.php`. Every time it runs, it makes sure today's and
-tomorrow's `sessions` rows exist for every active schedule — if a date
-doesn't have a row yet, it creates one with `booked = 0` and the pool's
-full capacity. So every new day starts completely open automatically.
-**Nothing ever "resets"** — the only thing that changes `booked` is a
-real row appearing in `bookings`.
+**Solution:** SplashPoint — a web-based booking system covering 3 campus pools (1 Olympic-size lane pool, 2 leisure/training pools), supporting public browsing, member accounts, real-time availability checking, and admin management — deployed on a production-grade AWS architecture designed around five pillars: **Security, High Performance, Scalability, Load Balancing, and Cost Optimization**.
 
-## Login rules
+## Architecture
 
-- Browsing pools and sessions on the homepage: **no login required**.
-- Clicking a session to book it: redirected to `member/login.php` (or
-  `register.php`) if not logged in, then bounced straight back to
-  finish the booking.
-- Admin dashboard: completely separate login (`admins` table, own
-  session key), so staff and customer accounts never mix.
+- **Network:** Custom VPC across 2 Availability Zones, each with a public and private subnet (2 public + 2 private total)
+- **Compute:** 2× EC2 instances (private subnet) behind an Application Load Balancer (ALB), managed by an Auto Scaling Group
+- **Database:** Amazon RDS (MySQL), isolated in a private subnet
+- **Storage:** Amazon S3 for application images/assets
+- **Security:** NAT Gateway + Elastic IP for secure outbound access, layered Security Groups, AWS WAF, SSM Parameter Store for encrypted secrets
+- **Monitoring & Messaging:** CloudWatch (alarms + dashboard), AWS CloudTrail, SNS + Lambda for event-driven email notifications
 
-## WAMPP setup
+### Zero-Trust Network Design
+EC2 (application layer) and RDS (database layer) are fully isolated in private subnets with no direct exposure to the internet. The only external entry point is the ALB. Security Groups enforce a strict one-way trust chain: **ALB → EC2 → RDS**, with each layer only trusting traffic from the layer directly before it.
 
-1. Copy the `pool-booking-php` folder into `C:/wamp64/www/`.
-2. Open **phpMyAdmin** → Import → select `database/schema.sql`. This
-   creates the `pool_booking` database, all tables, and seeds the 3
-   pools + their recurring schedules (no sessions or accounts yet —
-   those are created automatically / by you).
-3. Open `config/db.php` — WAMPP defaults (`localhost`, `root`, no
-   password) are already set, so you usually don't need to touch this.
-4. Open `config/config.php` and set `BASE_URL` to match your folder
-   name, e.g. `define('BASE_URL', '/pool-booking-php');` if you're
-   opening the site at `http://localhost/pool-booking-php/`.
-5. Visit `http://localhost/pool-booking-php/admin/setup_admin.php`
-   **once** to create your admin account, then delete that file.
-6. Visit `http://localhost/pool-booking-php/` — pools and sessions
-   should appear (auto-generated for today/tomorrow on this first
-   visit). Register a member account and try booking a session.
-7. Log in at `admin/login.php` with the Admin ID + password you just
-   created to see the dashboard, manage pools/schedules, and view all
-   bookings.
+## Key Features
 
-## What's implemented (per your list)
+### 🔒 Secure
+- Zero-trust network isolation (VPC, private subnets, layered Security Groups)
+- Encrypted secrets management via SSM Parameter Store (SecureString) with IAM Role-based retrieval at boot
+- Member passwords hashed with bcrypt (no plaintext storage)
+- AWS WAF rules blocking SQL injection and XSS — verified via simulated attack testing (`?id=1' OR '1'='1`), confirmed 403 responses
 
-1. **Admin login (by Admin ID) + full pool CRUD** — `admin/pools.php`
-   (create/edit/deactivate pools), `admin/schedules.php` (add/pause/
-   delete recurring time slots), `admin/bookings.php` (view every
-   booking, filter by date/status, cancel any booking),
-   `admin/dashboard.php` (today's stats + snapshot).
-2. **Member register/login + profile** — `member/register.php`,
-   `member/login.php`, `member/logout.php`, `member/profile.php`
-   (edit name/phone, see your own booking history, cancel your own
-   bookings). Browsing stays public; only booking requires login.
-3. **Live, real data** — session lists on the homepage and gauges
-   are queried fresh from MySQL on every page load, so as soon as a
-   real booking happens, everyone sees the updated availability
-   immediately. Daily capacity "refresh" is handled by the session
-   generator described above — it's real, not a display trick.
-4. See **"Suggested next steps"** below for extra ideas tied to your
-   assignment rubric.
+### ⚡ High Performing & Scalable
+- Auto Scaling Group with Target Tracking policy (70% CPU threshold)
+- Load tested with Apache Bench — 50 concurrent users, 50,000 requests, **zero failed requests**
+- Verified live scale-out (1 → 2 instances) under load and automatic scale-in once load subsided
 
-## Suggested next steps (not built yet — your call)
+### ⚖️ Load Balanced
+- Application Load Balancer distributing traffic evenly across 2 Availability Zones
+- Verified even traffic distribution via access log comparison (<5% difference between instances) under a 5,000-request / 200-concurrency test
 
-These aren't implemented, but are natural additions that would
-strengthen the assignment report, roughly in order of effort:
+### 💰 Cost Optimized
+- Right-sized resources (t3.micro EC2, db.t3.micro RDS) for a small-workload estimate of **~USD 111.59/month**
+- Free-tier/negligible-cost services used where possible (SSM Parameter Store, CloudTrail, VPC/Security Groups, Auto Scaling)
 
-- **CSRF tokens** on all POST forms (login, booking, admin actions) —
-  a straightforward security add markers usually expect to see.
-- **Booking cutoff / cancellation window** (e.g. can't cancel within
-  1 hour of the session) — shows business-logic thinking.
-- **Admin CSV export** of bookings for a date range — nice for the
-  "reporting" angle in your write-up, and easy to build with PHP's
-  `fputcsv()`.
-- **Rate limiting on login** (lock out after N failed attempts) —
-  pairs well with the "Secure" rubric criterion.
-- **Email confirmation** via Amazon SES once you're on AWS — sends a
-  real email with the booking reference instead of just showing it
-  on screen.
-- **Password reset flow** for members ("forgot password" — currently
-  there isn't one).
-- **Search/filter by date** on the homepage once you have more than
-  2 days of sessions generated.
-- **Session capacity edits per date** (e.g. admin reduces one specific
-  day's capacity for maintenance) — currently capacity is inherited
-  from the pool/schedule, not editable per individual session.
+### ✉️ Additional Services
+- Lambda + SNS for automated booking confirmation email notifications
+- S3 for serving application images via a configured base URL
 
-## Deploying to AWS later
+## Tech Stack
 
-Same idea as before — only `config/db.php` needs to change (point
-`DB_HOST`/`DB_USER`/`DB_PASS` at your RDS instance), plus re-import
-`database/schema.sql` into RDS and run `admin/setup_admin.php` once
-there too. `config/config.php`'s `BASE_URL` may also need adjusting
-depending on how you deploy (root vs. subfolder).
+- **Cloud Platform:** AWS (VPC, EC2, RDS, ALB, Auto Scaling Group, S3, Lambda, SNS, WAF, CloudWatch, CloudTrail, SSM Parameter Store, IAM)
+- **Application:** PHP, MySQL
+- **Testing Tools:** Apache Bench (`ab`)
+
+## My Role
+
+**Project Leader** — coordinated the team and personally designed/implemented:
+- **Security architecture:** VPC network isolation, Security Group rules, zero-trust design, SSM Parameter Store secrets, WAF rule configuration and attack testing
+- **Load Balancing & Scalability:** ALB setup, Auto Scaling Group with Target Tracking policy, CloudWatch alarms/dashboard, and load testing (Apache Bench) to verify scale-out/scale-in behavior
+- **Additional services integration:** Lambda + SNS email notification pipeline, S3 image storage configuration
+
+## Challenges & Solutions
+
+| Challenge | Solution |
+|---|---|
+| AWS Academy Learner Lab IAM restrictions blocked certain services (CloudFront, SES) | Pivoted to alternatives (Gmail SMTP) after testing cheaply first |
+| PHP sessions broke across multiple EC2 instances behind the ALB | Implemented a database-backed session handler |
+| New Auto Scaling instances launched with outdated configuration | Moved setup/bootstrap logic into the Launch Template's User Data script |
+
+## Future Improvements
+
+- Migrate to HTTPS with a custom domain + ACM certificate
+- Automate deployment via S3 + Instance Refresh (CI/CD-style)
+- Move email confirmation to Amazon SES for production use
+- Explore VPC Endpoints to remove NAT Gateway dependency
+
+---
+*Developed as part of AMIT3253 Cloud Computing for Business, TAR University of Management and Technology.*
