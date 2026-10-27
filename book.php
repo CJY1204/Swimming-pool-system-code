@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'reference' => $reference,
             ]);
             $snsMessageEscaped = escapeshellarg($snsMessage);
-            $snsTopicArn = 'arn:aws:sns:us-east-1:082810551484:pool-booking-confirmations'; // <-- paste your pool-booking-confirmations ARN here
+            $snsTopicArn = 'arn:aws:sns:us-east-1:720578968671:pool-booking-confirmations'; // <-- paste your pool-booking-confirmations ARN here
             shell_exec("aws sns publish --topic-arn {$snsTopicArn} --message {$snsMessageEscaped} --region us-east-1 > /dev/null 2>&1 &");
 
             header('Location: ' . BASE_URL . '/booking_success.php?ref=' . urlencode($reference));
